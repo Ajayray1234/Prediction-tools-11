@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Ajay Wingo Lottery Prediction</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #e0eafc, #cfdef3);
+      padding: 15px 10px;
+      margin: 0;
+      text-align: center;
+      perspective: 1000px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .container {
+      background: white;
+      padding: 20px 15px;
+      border-radius: 15px;
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+      max-width: 100%;
+      margin: auto;
+      transform: rotateX(5deg) rotateY(5deg);
+      transition: all 0.4s ease-in-out;
+      overflow-x: auto;
+    }
+    .container:hover {
+      transform: rotateX(0deg) rotateY(0deg);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      padding: 0 5px;
+    }
+    #prediction {
+      font-size: 1.15rem;
+      margin-top: 10px;
+      margin-bottom: 5px;
+      padding: 10px 12px;
+      background: linear-gradient(145deg, #ffffff, #e6e6e6);
+      border-radius: 10px;
+      box-shadow: 5px 5px 10px #c5c5c5, -5px -5px 10px #ffffff;
+      transform: rotateX(8deg);
+      transition: all 0.3s ease-in-out;
+      max-width: 100%;
+      word-break: break-word;
+    }
+    #prediction:hover {
+      transform: rotateX(0deg);
+    }
+    #accuracy {
+      font-size: 1rem;
+      margin-bottom: 15px;
+      color: #333;
+      padding: 0 5px;
+    }
+    iframe#bdgframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      font-size: 12px;
+      min-width: 480px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px 4px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+    th {
+      background-color: #f0f0f0;
+      font-weight: 600;
+    }
+    .big {
+      color: white;
+      background-color: #007bff;
+      font-weight: bold;
+      border-radius: 4px;
+      padding: 2px 6px;
+      display: inline-block;
+      font-size: 0.85rem;
+    }
+    .small {
+      color: white;
+      background-color: #28a745;
+      font-weight: bold;
+      border-radius: 4px;
+      padding: 2px 6px;
+      display: inline-block;
+      font-size: 0.85rem;
+    }
+    .correct {
+      background-color: #c6f6c6;
+    }
+    .wrong {
+      background-color: #f6c6c6;
+    }
+    #results {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      background: #f9f9f9;
+      padding: 15px 10px;
+      border-radius: 10px;
+      box-shadow: inset 0 0 10px #ccc;
+      font-size: 13px;
+      max-height: 280px;
+      overflow-y: auto;
+      word-wrap: break-word;
+    }
+    #results > div {
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #ddd;
+    }
+    #results strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 3px;
+      color: #444;
+    }
+    #results::-webkit-scrollbar {
+      width: 6px;
+    }
+    #results::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 3px;
+    }
+    #results::-webkit-scrollbar-track {
+      background: #eee;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 10px 8px;
+      }
+      .container {
+        padding: 15px 10px;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+      #prediction {
+        font-size: 1rem;
+      }
+      table {
+        font-size: 11px;
+        min-width: 350px;
+      }
+      th, td {
+        padding: 4px 3px;
+      }
+      .big, .small {
+        font-size: 0.75rem;
+        padding: 2px 4px;
+      }
+      #results {
+        font-size: 12px;
+        max-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ajay Wingo Lottery Prediction</h1>
+    <p id="prediction">Loading prediction...</p>
+    <p id="accuracy"></p>
+    <iframe id="bdgframe" src="https://bdggame5.com//#/login"></iframe>
+    <div style="overflow-x:auto;">
+      <table id="historyTable">
+        <caption style="text-align:left; font-weight:600; margin-bottom:6px;">Prediction History Table</caption>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Period</th>
+            <th>Number</th>
+            <th>Big/Small</th>
+            <th>Prediction</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <h1 style="margin-top:40px; font-size:1.4rem;">Latest WinGo Results</h1>
+  <div id="results"></div>
+
+  <script>
+    let tracker;
+    let nextPrediction = "-";
+
+    class BigSmallTracker {
+      constructor() {
+        this.historicalData = [];
+        this.periods = [];
+        this.totalPredictions = 0;
+        this.correctPredictions = 0;
+        this.lossCount = 0;
+      }
+
+      getBigSmall(number) {
+        return number <= 4 ? "Small" : "Big";
+      }
+
+      getPattern(sequence) {
+        return sequence.map(n => this.getBigSmall(n));
+      }
+
+      getMostFrequent(arr) {
+        const freq = {};
+        arr.forEach(val => freq[val] = (freq[val] || 0) + 1);
+        return Object.entries(freq).sort((a,b) => b[1]-a[1])[0][0];
+      }
+
+      findPrediction() {
+        const maxLookback = Math.min(this.historicalData.length, 10);
+        const historicalPattern = this.getPattern(this.historicalData);
+        const patternFlow = {};
+
+        for (let len = maxLookback; len >= 1; len--) {
+          const currentPattern = historicalPattern.slice(-len).join('');
+          for (let i = 0; i <= historicalPattern.length - len -1; i++) {
+            const pattern = historicalPattern.slice(i, i + len).join('');
+            const nextNum = this.historicalData[i + len];
+            if (nextNum !== undefined) {
+              if (!patternFlow[pattern]) patternFlow[pattern] = [];
+              patternFlow[pattern].push(nextNum);
+            }
+          }
+          if (patternFlow[currentPattern]) {
+            const most = this.getMostFrequent(patternFlow[currentPattern]);
+            const predicted = this.getBigSmall(most);
+            return predicted === "Big" ? "Small" : "Big";
+          }
+        }
+        return "-";
+      }
+
+      addNumber(period, number) {
+        if (this.periods.includes(period)) return;
+        this.periods.push(period);
+        this.historicalData.push(number);
+
+        const actual = this.getBigSmall(number);
+        const predicted = nextPrediction;
+        const correct = predicted === actual;
+
+        this.totalPredictions++;
+        if (predicted !== "-") {
+          if (correct) {
+            this.correctPredictions++;
+          }
+        }
+
+        const tbody = document.querySelector("#historyTable tbody");
+        const row = document.createElement("tr");
+        row.className = predicted === "-" ? "" : (correct ? "correct" : "wrong");
+        row.innerHTML = `
+          <td>${this.totalPredictions}</td>
+          <td>${period}</td>
+          <td>${number}</td>
+          <td><span class="${actual.toLowerCase()}">${actual}</span></td>
+          <td><span class="${predicted.toLowerCase()}">${predicted}</span></td>
+          <td>${predicted === "-" ? "-" : (correct ? "✔" : "✘")}</td>
+        `;
+        tbody.appendChild(row);
+
+        const acc = Math.round((this.correctPredictions / this.totalPredictions) * 100 || 0);
+        document.getElementById("accuracy").innerText = `✅ Accuracy: ${this.correctPredictions} / ${this.totalPredictions} (${acc}%)`;
+
+        nextPrediction = this.findPrediction();
+        document.getElementById("prediction").innerText = `🔮 Future Prediction: ${nextPrediction}`;
+      }
+    }
+
+    async function fetchResultsAndAdd() {
+      const ts = Date.now();
+      const url = `https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?ts=${ts}`;
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.code === 0) {
+          const results = data.data.list;
+          const resultDiv = document.getElementById("results");
+          resultDiv.innerHTML = "";
+          for (let i = 0; i < Math.min(10, results.length); i++) {
+            const r = results[i];
+            const number = parseInt(r.number);
+            const size = number <= 4 ? "Small" : "Big";
+            resultDiv.innerHTML += `
+              <div>
+                <strong>Result ${i+1}</strong>
+                <div>Period: ${r.issueNumber}</div>
+                <div>Number: ${number}</div>
+                <div>Color: ${r.color}</div>
+                <div>Size: ${size}</div>
+              </div>
+            `;
+          }
+          for (let i = results.length - 1; i >= 0; i--) {
+            const r = results[i];
+            tracker.addNumber(r.issueNumber, parseInt(r.number));
+          }
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    }
+
+    function initialize() {
+      tracker = new BigSmallTracker();
+      fetchResultsAndAdd();
+      setInterval(fetchResultsAndAdd, 30000);
+    }
+
+    window.onload = initialize;
+  </script>
+</body>
+</html>
+
